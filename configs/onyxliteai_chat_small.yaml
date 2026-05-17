@@ -1,0 +1,27 @@
+model:
+  block_size: 1024
+  n_layer: 6
+  n_head: 8
+  n_embd: 512
+  dropout: 0.10
+  bias: false
+
+train:
+  data_dir: data/processed
+  tokenizer_path: tokenizer/onyxliteai_tokenizer.json
+  out_dir: runs/onyxliteai_chat_small
+  device: auto
+  batch_size: 4
+  grad_accum_steps: 16
+  max_steps: 5000
+  eval_interval: 250
+  eval_iters: 50
+  save_interval: 500
+  learning_rate: 0.00025
+  min_lr: 0.000025
+  warmup_steps: 250
+  weight_decay: 0.1
+  grad_clip: 1.0
+  amp: bf16
+  compile_model: false
+  seed: 1337

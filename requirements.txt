@@ -1,0 +1,7 @@
+torch>=2.3
+tokenizers>=0.15
+PyYAML>=6.0
+numpy>=1.26
+tqdm>=4.66
+pandas>=2.0
+matplotlib>=3.8
