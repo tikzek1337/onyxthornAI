@@ -1,3 +1,3 @@
-"""onyxLiteAI — compact GPT-like LLM project focused on everyday conversation, not coding."""
+"""onyxthornAI — compact GPT-like LLM project focused on everyday conversation."""
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"

@@ -1,4 +1,4 @@
-# Roadmap: onyxLiteAI Chat
+# Roadmap: onyxthornAI Chat
 
 ## Этап 1. Smoke test
 

@@ -8,8 +8,8 @@ model:
 
 train:
   data_dir: data/processed
-  tokenizer_path: tokenizer/onyxliteai_tokenizer.json
-  out_dir: runs/onyxliteai_chat_tiny
+  tokenizer_path: tokenizer/onyxthornai_tokenizer.json
+  out_dir: runs/onyxthornai_chat_tiny
   device: auto
   batch_size: 8
   grad_accum_steps: 8

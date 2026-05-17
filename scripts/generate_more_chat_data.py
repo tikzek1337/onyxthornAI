@@ -1,4 +1,4 @@
-"""Small helper template for adding more onyxLiteAI chat records.
+"""Small helper template for adding more onyxthornAI chat records.
 
 This script intentionally creates only a tiny sample. Extend the topic lists and
 write outputs manually/with review if you want higher-quality data.

@@ -1,25 +1,26 @@
-# onyxLiteAI Chat
+# onyxthornAI Chat
 
-onyxLiteAI Chat — переделанная версия проекта onyxAI: теперь это chat-only LLM для обычного общения, а не coding-first модель. В проекте заменен системный промпт, переименованы конфиги, обновлены инструкции и добавлен большой синтетический датасет для обучения разговорного поведения.
+onyxthornAI Chat — переделанная версия проекта onyxthornAI: теперь это chat-only LLM для обычного общения, а не coding-first модель. В проекте заменен системный промпт, переименованы конфиги, обновлены инструкции и добавлен большой синтетический датасет для обучения разговорного поведения.
 
 Цель модели: нормально общаться с пользователем, объяснять темы простыми словами, помогать с бытовыми и учебными задачами, формулировать сообщения, поддерживать в обычных эмоциональных ситуациях, рассуждать аккуратно и не притворяться всезнающей.
 
 Важно: в ZIP нет уже обученных весов. Это готовый проект для подготовки данных, обучения tokenizer, обучения модели и запуска чата локально.
 
-## Что изменено относительно onyxAI Coder
+## Что изменено относительно onyxthornAI Coder
 
 - Убран coding-first датасет Python/HTML/CSS/JavaScript.
-- Добавлен расширенный chat-only dataset: 68,700 generated-записей + 2,000 seed-записей.
+- Добавлен расширенный chat-only dataset: 118,700 generated-записей + 2,000 seed-записей, включая новый файл на 50,000 уникальных записей про эмоции, дружбу, отношения и прямые ответы.
 - Системный промпт переписан под обычное общение.
-- Добавлены boundary-примеры: если пользователь просит код, onyxLiteAI не должна превращаться в coding assistant.
-- README и docs полностью переписаны под обучение и использование onyxLiteAI.
+- Добавлены boundary-примеры: если пользователь просит код, onyxthornAI не должна превращаться в coding assistant.
+- README и docs полностью переписаны под обучение и использование onyxthornAI.
 - Пакет переименован в `onyxliteai`.
-- Конфиги переименованы в `onyxliteai_chat_tiny.yaml` и `onyxliteai_chat_small.yaml`.
+- Добавлен основной конфиг `configs/onyxthornai_chat_17m.yaml`: около 17.16 млн параметров при vocab_size=16000 и контекст 1024 токена.
+- Добавлена консольная программа `python -m onyxliteai.studio` для настройки steps/batch/context, оценки времени, подготовки данных, запуска обучения и чата.
 
 ## Структура проекта
 
 ```text
-onyxLiteAI_chat_project/
+onyxthornAI_chat_project/
   onyxliteai/
     model.py                 # decoder-only Transformer
     tokenizer.py             # BPE tokenizer
@@ -27,8 +28,11 @@ onyxLiteAI_chat_project/
     train.py                 # training loop
     generate.py              # one-shot generation
     chat.py                  # interactive CLI chat
+    studio.py                # удобное меню для обучения и чата
+    assistant_response.py    # очистка ответа и fallback для эмоциональных сообщений
     prompting.py             # chat-only system prompt
   configs/
+    onyxthornai_chat_17m.yaml
     onyxliteai_chat_tiny.yaml
     onyxliteai_chat_small.yaml
   data/
@@ -67,6 +71,7 @@ extra_general_knowledge_culture_5000.jsonl: 5000 records
 extra_practical_life_and_decisions_5000.jsonl: 5000 records
 extra_emotional_support_5000.jsonl: 5000 records
 extra_communication_rewrites_5000.jsonl: 5000 records
+onyxthornai_empathy_dialogues_50000.jsonl: 50000 records
 ```
 
 Категории:
@@ -112,10 +117,26 @@ entertainment/recommendation: 834
 - аккуратным safety-ответам;
 - отказу от роли coding-модели.
 
+
+## Самый удобный запуск
+
+```powershell
+python -m onyxliteai.studio
+```
+
+В Studio можно до старта обучения менять `steps`, `batch_size`, `grad_accum_steps` и размер контекста, видеть примерное время обучения в секундах, примерный размер модели, количество параметров, путь к tokenizer и папку чекпоинтов. После обучения там же можно открыть чат, поменять параметры генерации через `/settings`, посмотреть `/info`, перезагрузить модель через `/reload` и сбросить диалог через `/reset`.
+
+Для обучения основной версии на 15–20 млн параметров используй:
+
+```powershell
+python scripts/prepare_data.py --jsonl data/seed/*.jsonl data/generated/*.jsonl --tokenizer tokenizer/onyxthornai_tokenizer.json --out_dir data/processed --vocab_size 16000
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml
+```
+
 ## Установка
 
 ```powershell
-cd C:/onyxLiteAI_chat_project
+cd C:/onyxthornAI_chat_project
 python -m pip install -r requirements.txt
 python scripts/verify_install.py
 ```
@@ -127,23 +148,23 @@ python scripts/verify_install.py
 Smoke test нужен, чтобы проверить pipeline на маленьком датасете.
 
 ```powershell
-python scripts/prepare_data.py --jsonl data/seed/*.jsonl --tokenizer tokenizer/onyxliteai_tokenizer.json --out_dir data/processed --vocab_size 12000
-python -m onyxliteai.train --config configs/onyxliteai_chat_tiny.yaml
+python scripts/prepare_data.py --jsonl data/seed/*.jsonl --tokenizer tokenizer/onyxthornai_tokenizer.json --out_dir data/processed --vocab_size 12000
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml
 ```
 
-В текущем ZIP `tiny` уже настроен на `max_steps: 4500`, чтобы быстрые тесты на слабом GPU вроде RTX 3050 не шли слишком долго. Если нужно еще быстрее, можно временно переопределить шаги прямо из команды:
+В текущем ZIP `17m` уже настроен на `max_steps: 6000`, чтобы быстрые тесты на слабом GPU вроде RTX 3050 не шли слишком долго. Если нужно еще быстрее, можно временно переопределить шаги прямо из команды:
 
 ```powershell
-python -m onyxliteai.train --config configs/onyxliteai_chat_tiny.yaml --max_steps 4000
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml --max_steps 4000
 ```
 
-Если всё работает, появится папка `runs/onyxliteai_chat_tiny/` с чекпоинтами и `training_log.csv`.
+Если всё работает, появится папка `runs/onyxthornai_chat_17m/` с чекпоинтами и `training_log.csv`.
 
 ## Основная подготовка данных
 
 ```powershell
 python scripts/dataset_stats.py --jsonl data/generated/*.jsonl
-python scripts/prepare_data.py --jsonl data/generated/*.jsonl --tokenizer tokenizer/onyxliteai_tokenizer.json --out_dir data/processed --vocab_size 20000
+python scripts/prepare_data.py --jsonl data/generated/*.jsonl --tokenizer tokenizer/onyxthornai_tokenizer.json --out_dir data/processed --vocab_size 20000
 ```
 
 Что делает `prepare_data.py`:
@@ -156,20 +177,20 @@ python scripts/prepare_data.py --jsonl data/generated/*.jsonl --tokenizer tokeni
 
 ## Обучение
 
-Tiny-конфиг для быстрых тестов:
+Основной 17M-конфиг:
 
 ```powershell
-python -m onyxliteai.train --config configs/onyxliteai_chat_tiny.yaml
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml
 ```
 
-В файле `configs/onyxliteai_chat_tiny.yaml` сейчас стоит:
+В файле `configs/onyxthornai_chat_17m.yaml` сейчас стоит:
 
 ```yaml
 train:
-  max_steps: 4500
+  max_steps: 6000
 ```
 
-Small-конфиг для более качественного, но более тяжелого запуска:
+Альтернативный small-конфиг теперь тоже уменьшен до диапазона 15–20M:
 
 ```powershell
 python -m onyxliteai.train --config configs/onyxliteai_chat_small.yaml
@@ -192,7 +213,7 @@ train:
 Быстрый способ без редактирования YAML:
 
 ```powershell
-python -m onyxliteai.train --config configs/onyxliteai_chat_tiny.yaml --max_steps 4000
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml --max_steps 4000
 python -m onyxliteai.train --config configs/onyxliteai_chat_small.yaml --max_steps 5000
 ```
 
@@ -203,13 +224,13 @@ python -m onyxliteai.train --config configs/onyxliteai_chat_small.yaml --max_ste
 Один ответ:
 
 ```powershell
-python -m onyxliteai.generate --checkpoint runs/onyxliteai_chat_tiny/best.pt --tokenizer tokenizer/onyxliteai_tokenizer.json --prompt "Привет, поболтай со мной" --temperature 0.75 --top_k 50 --top_p 0.95 --max_new_tokens 500
+python -m onyxliteai.generate --checkpoint runs/onyxthornai_chat_17m/best.pt --tokenizer tokenizer/onyxthornai_tokenizer.json --prompt "Привет, поболтай со мной" --temperature 0.75 --top_k 50 --top_p 0.95 --max_new_tokens 500
 ```
 
 Интерактивный чат:
 
 ```powershell
-python -m onyxliteai.chat --checkpoint runs/onyxliteai_chat_tiny/best.pt --tokenizer tokenizer/onyxliteai_tokenizer.json --temperature 0.75 --top_k 50 --top_p 0.95 --max_new_tokens 600
+python -m onyxliteai.chat --checkpoint runs/onyxthornai_chat_17m/best.pt --tokenizer tokenizer/onyxthornai_tokenizer.json --temperature 0.75 --top_k 50 --top_p 0.95 --max_new_tokens 600
 ```
 
 Команды внутри CLI:
@@ -245,13 +266,13 @@ max tokens:  400–800
 Потом обучай так:
 
 ```powershell
-python scripts/prepare_data.py --jsonl data/generated/*.jsonl data/raw/*.jsonl --tokenizer tokenizer/onyxliteai_tokenizer.json --out_dir data/processed --vocab_size 20000
-python -m onyxliteai.train --config configs/onyxliteai_chat_tiny.yaml --max_steps 4500
+python scripts/prepare_data.py --jsonl data/generated/*.jsonl data/raw/*.jsonl --tokenizer tokenizer/onyxthornai_tokenizer.json --out_dir data/processed --vocab_size 20000
+python -m onyxliteai.train --config configs/onyxthornai_chat_17m.yaml --max_steps 6000
 ```
 
 ## Как не испортить chat-only характер
 
-Не добавляй много кода. Даже 10–20% coding-данных могут заметно сдвинуть маленькую модель в сторону программирования. Если хочешь, чтобы onyxLiteAI оставалась моделью для общения, держи программирование на уровне boundary-примеров: “я не coding-модель, могу объяснить идею без готового кода”.
+Не добавляй много кода. Даже 10–20% coding-данных могут заметно сдвинуть маленькую модель в сторону программирования. Если хочешь, чтобы onyxthornAI оставалась моделью для общения, держи программирование на уровне boundary-примеров: “я не coding-модель, могу объяснить идею без готового кода”.
 
 Хороший баланс:
 

@@ -24,8 +24,8 @@ class ModelConfig:
 @dataclass
 class TrainConfig:
     data_dir: str = "data/processed"
-    tokenizer_path: str = "tokenizer/onyxliteai_tokenizer.json"
-    out_dir: str = "runs/onyxliteai_chat_tiny"
+    tokenizer_path: str = "tokenizer/onyxthornai_tokenizer.json"
+    out_dir: str = "runs/onyxthornai_chat_tiny"
     device: str = "auto"
     batch_size: int = 8
     grad_accum_steps: int = 8

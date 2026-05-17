@@ -1,4 +1,4 @@
-# onyxLiteAI chat curriculum
+# onyxthornAI chat curriculum
 
 Цель: обучать модель быть хорошим собеседником, а не программистом.
 

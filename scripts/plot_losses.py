@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Plot onyxLiteAI chat training losses")
+    parser = argparse.ArgumentParser(description="Plot onyxthornAI chat training losses")
     parser.add_argument("--log", default="runs/onyxliteai_chat_tiny/training_log.csv")
     parser.add_argument("--out", default="runs/onyxliteai_chat_tiny/loss_curve.png")
     args = parser.parse_args()
@@ -18,7 +18,7 @@ def main() -> None:
     plt.xlabel("step")
     plt.ylabel("loss")
     plt.legend()
-    plt.title("onyxLiteAI chat training loss")
+    plt.title("onyxthornAI chat training loss")
     plt.savefig(args.out, dpi=160, bbox_inches="tight")
     print(f"saved: {args.out}")
 

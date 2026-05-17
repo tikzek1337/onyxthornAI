@@ -16,7 +16,7 @@ from onyxliteai.tokenizer import train_bpe_tokenizer
 def main() -> None:
     parser = argparse.ArgumentParser(description="Train tokenizer and build packed token bins")
     parser.add_argument("--jsonl", nargs="+", required=True, help="One or more instruction JSONL files")
-    parser.add_argument("--tokenizer", default="tokenizer/onyxliteai_tokenizer.json")
+    parser.add_argument("--tokenizer", default="tokenizer/onyxthornai_tokenizer.json")
     parser.add_argument("--out_dir", default="data/processed")
     parser.add_argument("--corpus", default="data/processed/tokenizer_corpus.txt")
     parser.add_argument("--vocab_size", type=int, default=16000)

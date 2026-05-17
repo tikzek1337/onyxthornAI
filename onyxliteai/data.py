@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import random
 from pathlib import Path
-from typing import Iterator, List, Tuple
+from typing import Iterator, Tuple
 
 import numpy as np
 import torch
@@ -25,9 +26,18 @@ def read_jsonl(path: str | Path) -> Iterator[dict]:
                 raise ValueError(f"Invalid JSONL at {path}:{line_no}: {exc}") from exc
 
 
+def _record_key(text: str) -> str:
+    normalized = " ".join(text.lower().split())
+    return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
 def build_corpus_file(jsonl_files: list[str | Path], out_path: str | Path, max_chars_per_record: int = 20000) -> Path:
+    """Build tokenizer corpus and drop exact duplicate formatted examples."""
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
+    seen: set[str] = set()
+    kept = 0
+    skipped = 0
     with out_path.open("w", encoding="utf-8") as out:
         for file in jsonl_files:
             for record in read_jsonl(file):
@@ -35,7 +45,14 @@ def build_corpus_file(jsonl_files: list[str | Path], out_path: str | Path, max_c
                 text = clean_text(text)
                 if not text or looks_unsafe(text):
                     continue
+                key = _record_key(text)
+                if key in seen:
+                    skipped += 1
+                    continue
+                seen.add(key)
+                kept += 1
                 out.write(text[:max_chars_per_record] + "\n\n")
+    print(f"corpus records kept={kept:,}, duplicates skipped={skipped:,}")
     return out_path
 
 
@@ -48,11 +65,18 @@ def encode_jsonl_to_bins(
 ) -> None:
     tokenizer = OnyxTokenizer(tokenizer_path)
     records: list[list[int]] = []
+    seen: set[str] = set()
+    skipped = 0
     for file in jsonl_files:
         for record in read_jsonl(file):
             text = clean_text(format_instruction_record(record))
             if not text or looks_unsafe(text):
                 continue
+            key = _record_key(text)
+            if key in seen:
+                skipped += 1
+                continue
+            seen.add(key)
             ids = tokenizer.encode(text)
             if len(ids) > 8:
                 records.append(ids)
@@ -86,8 +110,13 @@ def encode_jsonl_to_bins(
         "val_tokens": val_tokens,
         "train_records": len(train_records),
         "val_records": len(val_records),
+        "duplicates_skipped": skipped,
     }
     (out_dir / "meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(
+        f"encoded records train={len(train_records):,}, val={len(val_records):,}, "
+        f"tokens train={train_tokens:,}, val={val_tokens:,}, duplicates skipped={skipped:,}"
+    )
 
 
 class PackedTokenDataset:

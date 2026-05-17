@@ -1,4 +1,5 @@
 model:
+  # 17.16M params при vocab_size=16000. Хороший баланс: заметно сильнее tiny, но не 27M+.
   block_size: 1024
   n_layer: 6
   n_head: 6
@@ -9,16 +10,16 @@ model:
 train:
   data_dir: data/processed
   tokenizer_path: tokenizer/onyxthornai_tokenizer.json
-  out_dir: runs/onyxthornai_chat_small_17m
+  out_dir: runs/onyxthornai_chat_17m
   device: auto
   batch_size: 4
-  grad_accum_steps: 16
-  max_steps: 5000
+  grad_accum_steps: 12
+  max_steps: 6000
   eval_interval: 250
-  eval_iters: 50
+  eval_iters: 40
   save_interval: 500
-  learning_rate: 0.00025
-  min_lr: 0.000025
+  learning_rate: 0.00028
+  min_lr: 0.000028
   warmup_steps: 250
   weight_decay: 0.1
   grad_clip: 1.0

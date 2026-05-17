@@ -98,7 +98,7 @@ class Block(nn.Module):
         return x
 
 
-class OnyxLiteAI(nn.Module):
+class OnyxThornAI(nn.Module):
     """Small decoder-only Transformer for next-token prediction."""
 
     def __init__(self, config: ModelConfig):
@@ -196,7 +196,7 @@ class OnyxLiteAI(nn.Module):
         return idx
 
 
-def build_checkpoint(model: OnyxLiteAI, optimizer, config: ModelConfig, step: int, best_val_loss: float, extra: dict | None = None) -> dict:
+def build_checkpoint(model: OnyxThornAI, optimizer, config: ModelConfig, step: int, best_val_loss: float, extra: dict | None = None) -> dict:
     return {
         "model_state": model.state_dict(),
         "optimizer_state": optimizer.state_dict() if optimizer is not None else None,
@@ -207,5 +207,6 @@ def build_checkpoint(model: OnyxLiteAI, optimizer, config: ModelConfig, step: in
     }
 
 
-# Backward-compatible alias for older checkpoints/scripts.
-OnyxAI = OnyxLiteAI
+# Backward-compatible aliases for older checkpoints/scripts.
+OnyxLiteAI = OnyxThornAI
+OnyxAI = OnyxThornAI
